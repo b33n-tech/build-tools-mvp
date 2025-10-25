@@ -3,15 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KPI Builder - Lego UX V1</title>
+    <title>KPI Builder - Lego UX V2</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Sidebar de création de KPI -->
+    <!-- Sidebar -->
     <div id="sidebar">
         <h2>Créer un KPI</h2>
+        <input type="file" id="fileInput" accept=".csv, .xlsx">
+        <select id="columnSelect">
+            <option value="">-- Choisir une colonne --</option>
+        </select>
+        <select id="calcSelect">
+            <option value="sum">Somme</option>
+            <option value="avg">Moyenne</option>
+            <option value="max">Max</option>
+            <option value="min">Min</option>
+            <option value="count">Compte</option>
+        </select>
         <input type="text" id="kpiName" placeholder="Nom du KPI">
-        <input type="text" id="kpiSource" placeholder="Source (optionnel)">
         <button id="addKpiBtn">Ajouter KPI</button>
     </div>
 
@@ -21,7 +31,8 @@
         <div id="kpiContainer"></div>
     </div>
 
-    <!-- Sortable.js -->
+    <!-- Librairies -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <script src="script.js"></script>
 </body>
