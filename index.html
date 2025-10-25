@@ -3,14 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>KPI Builder</title>
+  <title>KPI Builder MVP</title>
   <link rel="stylesheet" href="style.css" />
-  <!-- Sortable pour drag & drop -->
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body>
   <div id="sidebar">
     <h2 id="sidebar-title">Créer un KPI</h2>
+
+    <label for="file-upload" style="font-size:0.9rem;color:#cfeeee;margin-bottom:4px">Uploader fichier CSV/XLSX</label>
+    <input type="file" id="file-upload" />
 
     <label for="kpi-name" style="font-size:0.9rem;color:#cfeeee;margin-bottom:4px">Nom du KPI</label>
     <input type="text" id="kpi-name" placeholder="Nom du KPI" />
@@ -22,11 +25,12 @@
       <option value="avg">Moyenne</option>
       <option value="max">Max</option>
       <option value="min">Min</option>
-      <option value="count">Compte</option>
     </select>
 
-    <label for="kpi-source" style="font-size:0.9rem;color:#cfeeee;margin-bottom:4px">Source (libre)</label>
-    <input type="text" id="kpi-source" placeholder="Source (ex: Feuille A - Colonne B)" />
+    <label for="kpi-source" style="font-size:0.9rem;color:#cfeeee;margin-bottom:4px">Colonne source</label>
+    <select id="kpi-source">
+      <option value="">Choisir colonne</option>
+    </select>
 
     <div style="display:flex; gap:10px; margin-top:6px;">
       <button id="save-btn">Ajouter KPI</button>
