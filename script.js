@@ -1,8 +1,4 @@
-// KPI Builder - click-to-edit in sidebar, drag & drop, localStorage persistence
-
-const dashboard = document.getElementById("dashboard");
 const kpiContainer = document.getElementById("kpiContainer");
-
 const saveBtn = document.getElementById("save-btn");
 const deleteBtn = document.getElementById("delete-btn");
 const sidebarTitle = document.getElementById("sidebar-title");
@@ -10,85 +6,88 @@ const sidebarTitle = document.getElementById("sidebar-title");
 const nameInput = document.getElementById("kpi-name");
 const typeInput = document.getElementById("kpi-type");
 const sourceInput = document.getElementById("kpi-source");
+const fileInput = document.getElementById("file-upload");
 
 let editingId = null;
 let kpis = JSON.parse(localStorage.getItem('kpis')) || [];
+let dataBase = [];
 
-// render function
-function renderKPIs() {
-  kpiContainer.innerHTML = '';
-  kpis.forEach((kpi) => {
-    const block = document.createElement('div');
-    block.className = 'kpi-block';
-    block.dataset.id = kpi.id;
+// ---- Upload fichier ----
+fileInput.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
 
-    // content
-    const title = document.createElement('h3');
-    title.textContent = kpi.name;
-    block.appendChild(title);
+  reader.onload = (evt) => {
+    const data = evt.target.result;
+    let wb;
+    if (file.name.endsWith(".csv")) {
+      const csv = new Uint8Array(data);
+      const arr = Array.from(csv).map(c => String.fromCharCode(c)).join("");
+      wb = XLSX.read(arr, { type: "string" });
+    } else {
+      wb = XLSX.read(data, { type: "binary" });
+    }
+    const wsname = wb.SheetNames[0];
+    const ws = wb.Sheets[wsname];
+    dataBase = XLSX.utils.sheet_to_json(ws);
+    populateColumns();
+  };
 
-    const meta = document.createElement('div');
-    meta.className = 'kpi-meta';
-    meta.textContent = `${kpi.type || 'Type -'} • ${kpi.source || 'Source -'}`;
-    block.appendChild(meta);
+  if (file.name.endsWith(".csv")) reader.readAsArrayBuffer(file);
+  else reader.readAsBinaryString(file);
+});
 
-    // placeholder value (you can integrate real computation later)
-    const value = document.createElement('div');
-    value.className = 'kpi-value';
-    value.textContent = kpi.value !== undefined ? kpi.value : '—';
-    block.appendChild(value);
-
-    // click to edit in sidebar
-    block.addEventListener('click', (ev) => {
-      // if user is dragging, avoid opening (Sortable cancels click on drag)
-      editKPI(kpi.id);
-    });
-
-    kpiContainer.appendChild(block);
+// ---- Remplir liste colonnes ----
+function populateColumns() {
+  sourceInput.innerHTML = '<option value="">Choisir colonne</option>';
+  if (dataBase.length === 0) return;
+  Object.keys(dataBase[0]).forEach(col => {
+    const opt = document.createElement('option');
+    opt.value = col;
+    opt.textContent = col;
+    sourceInput.appendChild(opt);
   });
-
-  // persist order/structure
-  localStorage.setItem('kpis', JSON.stringify(kpis));
 }
 
-// create or update
+// ---- Ajouter / Mettre à jour KPI ----
 saveBtn.addEventListener('click', () => {
   const name = nameInput.value.trim();
   const type = typeInput.value;
-  const source = sourceInput.value.trim();
+  const col = sourceInput.value;
 
-  if (!name) {
-    alert('Le nom du KPI est requis');
-    return;
+  if (!name) return alert("Nom du KPI requis");
+
+  let value = "—";
+  if (dataBase.length && col) {
+    const vals = dataBase.map(r => parseFloat(r[col])).filter(v => !isNaN(v));
+    if (vals.length) {
+      switch(type) {
+        case 'sum': value = vals.reduce((a,b)=>a+b,0); break;
+        case 'avg': value = (vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(2); break;
+        case 'max': value = Math.max(...vals); break;
+        case 'min': value = Math.min(...vals); break;
+        case 'count': value = vals.length; break;
+        default: value = "—";
+      }
+    }
   }
 
   if (editingId) {
-    // update existing
-    const idx = kpis.findIndex(k => k.id === editingId);
-    if (idx !== -1) {
-      kpis[idx].name = name;
-      kpis[idx].type = type;
-      kpis[idx].source = source;
-      // optional: recalc value if you implement calculation later
+    const idx = kpis.findIndex(k=>k.id===editingId);
+    if (idx!==-1) {
+      kpis[idx] = { ...kpis[idx], name, type, col, value };
     }
     editingId = null;
   } else {
-    // new KPI
-    const newKpi = {
-      id: Date.now().toString(),
-      name,
-      type,
-      source,
-      value: '—'
-    };
-    kpis.push(newKpi);
+    kpis.push({ id: Date.now().toString(), name, type, col, value });
   }
 
-  resetSidebar();
   renderKPIs();
+  resetSidebar();
 });
 
-// delete
+// ---- Supprimer ----
 deleteBtn.addEventListener('click', () => {
   if (!editingId) return;
   kpis = kpis.filter(k => k.id !== editingId);
@@ -97,45 +96,30 @@ deleteBtn.addEventListener('click', () => {
   renderKPIs();
 });
 
-// click a KPI => load into sidebar
+// ---- Editer un KPI ----
 function editKPI(id) {
-  const kpi = kpis.find(k => k.id === id);
+  const kpi = kpis.find(k=>k.id===id);
   if (!kpi) return;
   editingId = id;
   nameInput.value = kpi.name || '';
   typeInput.value = kpi.type || '';
-  sourceInput.value = kpi.source || '';
+  sourceInput.value = kpi.col || '';
   sidebarTitle.textContent = "Modifier le KPI";
   saveBtn.textContent = "💾 Mettre à jour";
   deleteBtn.style.display = 'inline-block';
 }
 
-// reset sidebar to create mode
+// ---- Reset sidebar ----
 function resetSidebar() {
-  nameInput.value = '';
-  typeInput.value = '';
-  sourceInput.value = '';
+  nameInput.value='';
+  typeInput.value='';
+  sourceInput.value='';
   sidebarTitle.textContent = "Créer un KPI";
   saveBtn.textContent = "Ajouter KPI";
-  deleteBtn.style.display = 'none';
-  editingId = null;
+  deleteBtn.style.display='none';
+  editingId=null;
 }
 
-// init sortable for Lego drag & drop
-new Sortable(kpiContainer, {
-  animation: 150,
-  onEnd: function (evt) {
-    // update kpis order according to DOM order
-    const newOrder = [];
-    kpiContainer.querySelectorAll('.kpi-block').forEach(block => {
-      const id = block.dataset.id;
-      const k = kpis.find(x => x.id === id);
-      if (k) newOrder.push(k);
-    });
-    kpis = newOrder;
-    renderKPIs();
-  }
-});
-
-// initial render
-renderKPIs();
+// ---- Render ----
+function renderKPIs() {
+ 
