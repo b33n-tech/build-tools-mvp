@@ -1,4 +1,4 @@
-// Récupération des KPI depuis localStorage ou vide
+// Charger les KPI depuis localStorage ou créer tableau vide
 let kpis = JSON.parse(localStorage.getItem('kpis')) || [];
 
 const kpiContainer = document.getElementById('kpiContainer');
@@ -6,7 +6,7 @@ const addKpiBtn = document.getElementById('addKpiBtn');
 const kpiNameInput = document.getElementById('kpiName');
 const kpiSourceInput = document.getElementById('kpiSource');
 
-// Fonction pour créer un bloc KPI
+// Créer un bloc KPI
 function createKpiBlock(kpi, index) {
     const div = document.createElement('div');
     div.className = 'kpi-block';
@@ -17,7 +17,7 @@ function createKpiBlock(kpi, index) {
     div.appendChild(h3);
 
     const p = document.createElement('p');
-    p.textContent = 'Source: ' + kpi.source;
+    p.textContent = 'Source: ' + (kpi.source || 'N/A');
     div.appendChild(p);
 
     const value = document.createElement('p');
@@ -27,7 +27,7 @@ function createKpiBlock(kpi, index) {
     return div;
 }
 
-// Render KPI
+// Rendu des KPI
 function renderKpis() {
     kpiContainer.innerHTML = '';
     kpis.forEach((kpi, index) => {
