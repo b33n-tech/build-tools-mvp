@@ -46,9 +46,10 @@ body {
 }
 
 #kpiContainer {
-    display: flex;
-    flex-wrap: wrap;  /* permet plusieurs blocs sur la même ligne */
-    gap: 10px;        /* espace entre blocs */
+    display: flex !important;
+    flex-wrap: wrap !important;  /* permet plusieurs blocs sur la même ligne */
+    gap: 10px !important;        /* espace entre blocs */
+    align-items: flex-start;      /* alignement vertical en haut */
 }
 
 .kpi-block {
@@ -57,9 +58,9 @@ body {
     border-radius: 8px;
     padding: 12px;
     cursor: grab;
-    width: 200px;    /* largeur fixe pour juxtaposition */
+    width: 200px;       /* largeur fixe pour juxtaposition */
     min-width: 150px;
-    flex-shrink: 0;  /* empêche le bloc de rétrécir trop */
+    flex-shrink: 0;     /* empêche le bloc de rétrécir */
 }
 
 .kpi-block h3 {
