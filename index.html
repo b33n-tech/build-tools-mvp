@@ -3,33 +3,33 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>KPI Builder MVP</title>
+  <title>KPI Builder V3</title>
   <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 </head>
 <body>
   <div id="sidebar">
     <h2 id="sidebar-title">Créer un KPI</h2>
 
-    <label for="file-upload" style="font-size:0.9rem;color:#cfeeee;margin-bottom:4px">Uploader fichier CSV/XLSX</label>
-    <input type="file" id="file-upload" />
+    <label>Upload CSV/XLSX</label>
+    <input type="file" id="file-input" accept=".csv,.xlsx" />
 
-    <label for="kpi-name" style="font-size:0.9rem;color:#cfeeee;margin-bottom:4px">Nom du KPI</label>
+    <label>Nom du KPI</label>
     <input type="text" id="kpi-name" placeholder="Nom du KPI" />
 
-    <label for="kpi-type" style="font-size:0.9rem;color:#cfeeee;margin-bottom:4px">Type de calcul</label>
+    <label>Type de calcul</label>
     <select id="kpi-type">
       <option value="">Type de calcul</option>
       <option value="sum">Somme</option>
       <option value="avg">Moyenne</option>
-      <option value="max">Max</option>
       <option value="min">Min</option>
+      <option value="max">Max</option>
     </select>
 
-    <label for="kpi-source" style="font-size:0.9rem;color:#cfeeee;margin-bottom:4px">Colonne source</label>
-    <select id="kpi-source">
-      <option value="">Choisir colonne</option>
+    <label>Colonne source</label>
+    <select id="kpi-column">
+      <option value="">Sélectionner une colonne</option>
     </select>
 
     <div style="display:flex; gap:10px; margin-top:6px;">
@@ -38,7 +38,7 @@
     </div>
 
     <div style="margin-top:12px; font-size:0.85rem; color:#bcdfe0">
-      <div><strong>Astuce :</strong> clique sur une brique du dashboard pour l'éditer dans la sidebar.</div>
+      Cliquez sur une brique du dashboard pour l'éditer dans la sidebar.
     </div>
   </div>
 
