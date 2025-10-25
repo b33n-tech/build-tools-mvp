@@ -1,11 +1,13 @@
 import streamlit as st
+import pandas as pd
+from st_aggrid import AgGrid, GridOptionsBuilder, GridUpdateMode
 
 st.set_page_config(layout="wide")
-st.title("Prototype User-Builder KPI - MVP Cloud Ready")
+st.title("Prototype User-Builder KPI - AgGrid Drag & Drop")
 
 # ------------------- Initialisation -------------------
-if "kpis" not in st.session_state:
-    st.session_state.kpis = []
+if "kpi_df" not in st.session_state:
+    st.session_state.kpi_df = pd.DataFrame(columns=["Nom KPI", "Source", "Valeur"])
 
 # ------------------- Sidebar : créer un KPI -------------------
 st.sidebar.header("Créer un KPI")
@@ -14,29 +16,35 @@ kpi_source = st.sidebar.text_input("Source (ex: colonne)")
 
 if st.sidebar.button("Push KPI"):
     if kpi_name:
-        st.session_state.kpis.append({"name": kpi_name, "source": kpi_source})
+        new_row = pd.DataFrame([{"Nom KPI": kpi_name, "Source": kpi_source, "Valeur": 0}])
+        st.session_state.kpi_df = pd.concat([st.session_state.kpi_df, new_row], ignore_index=True)
         st.success(f"KPI '{kpi_name}' ajouté !")
     else:
         st.warning("Merci de donner un nom au KPI")
 
 # ------------------- Dashboard -------------------
-st.subheader("Dashboard")
-kpi_container = st.container()
+st.subheader("Dashboard - Drag & Drop avec AgGrid")
 
-for idx, kpi in enumerate(st.session_state.kpis):
-    with kpi_container:
-        st.markdown(f"**{kpi['name']}** (source: {kpi['source']})")
-        st.metric(label="Valeur", value=0)  # Placeholder pour métrique
+# Configuration AgGrid
+gb = GridOptionsBuilder.from_dataframe(st.session_state.kpi_df)
+gb.configure_default_column(editable=True, sortable=True)
+gb.configure_grid_options(rowDragManaged=True, suppressMovableColumns=True)
+grid_options = gb.build()
 
-        # --------- Boutons de réorganisation ---------
-        col1, col2, col3 = st.columns([1,1,6])
-        with col1:
-            if st.button("⬆️", key=f"up_{idx}") and idx > 0:
-                st.session_state.kpis[idx], st.session_state.kpis[idx-1] = st.session_state.kpis[idx-1], st.session_state.kpis[idx]
-        with col2:
-            if st.button("⬇️", key=f"down_{idx}") and idx < len(st.session_state.kpis)-1:
-                st.session_state.kpis[idx], st.session_state.kpis[idx+1] = st.session_state.kpis[idx+1], st.session_state.kpis[idx]
-        # Col3 vide pour l'espacement
+grid_response = AgGrid(
+    st.session_state.kpi_df,
+    gridOptions=grid_options,
+    update_mode=GridUpdateMode.MODEL_CHANGED,
+    fit_columns_on_grid_load=True,
+    enable_enterprise_modules=False,
+    height=300
+)
 
-# ------------------- Info -------------------
-st.info("Prototype MVP : ajoutez des KPIs, réorganisez-les avec les boutons ⬆️ / ⬇️. Drag & drop visuel à venir.")
+# Mise à jour du dataframe après drag & drop
+st.session_state.kpi_df = pd.DataFrame(grid_response['data'])
+
+# Affichage visuel des KPI comme des “briques”
+st.subheader("Aperçu Dashboard")
+for idx, row in st.session_state.kpi_df.iterrows():
+    st.markdown(f"**{row['Nom KPI']}** (Source: {row['Source']})")
+    st.metric(label="Valeur", value=row["Valeur"])
