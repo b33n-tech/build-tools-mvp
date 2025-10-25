@@ -8,7 +8,7 @@ const fileInput = document.getElementById('fileInput');
 const columnSelect = document.getElementById('columnSelect');
 const calcSelect = document.getElementById('calcSelect');
 
-// Lire CSV/XLSX via SheetJS
+// Lecture CSV/XLSX
 fileInput.addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -25,9 +25,8 @@ fileInput.addEventListener('change', (e) => {
         }
 
         const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-        sheetData = XLSX.utils.sheet_to_json(firstSheet, {defval:0}); // cellules vides = 0
+        sheetData = XLSX.utils.sheet_to_json(firstSheet, {defval:0});
 
-        // remplir dropdown colonnes
         columnSelect.innerHTML = '<option value="">-- Choisir une colonne --</option>';
         if(sheetData.length > 0){
             Object.keys(sheetData[0]).forEach(col => {
@@ -42,7 +41,21 @@ fileInput.addEventListener('change', (e) => {
     reader.readAsBinaryString(file);
 });
 
-// Créer bloc KPI
+// Calcul KPI
+function computeKpiValue(kpi){
+    if(!sheetData.length || !kpi.column) return 0;
+    const vals = sheetData.map(r=>parseFloat(r[kpi.column])).filter(v=>!isNaN(v));
+    switch(kpi.calc){
+        case 'sum': return vals.reduce((a,b)=>a+b,0);
+        case 'avg': return (vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(2);
+        case 'max': return Math.max(...vals);
+        case 'min': return Math.min(...vals);
+        case 'count': return vals.length;
+        default: return 0;
+    }
+}
+
+// Création bloc KPI
 function createKpiBlock(kpi, index){
     const div = document.createElement('div');
     div.className = 'kpi-block';
@@ -60,21 +73,77 @@ function createKpiBlock(kpi, index){
     value.textContent = 'Valeur: ' + computeKpiValue(kpi);
     div.appendChild(value);
 
+    // Mini menu
+    const menu = document.createElement('select');
+    ['Actions','Reparamétrer','Supprimer'].forEach(optText=>{
+        const opt = document.createElement('option');
+        opt.value = optText.toLowerCase();
+        opt.textContent = optText;
+        menu.appendChild(opt);
+    });
+
+    menu.addEventListener('change', (e)=>{
+        if(e.target.value === 'delete'){
+            kpis.splice(index,1);
+            renderKpis();
+        } else if(e.target.value === 'reparamétrer'){
+            showEditForm(kpi,index);
+        }
+        e.target.value = '';
+    });
+
+    div.appendChild(menu);
+
     return div;
 }
 
-// Calcul KPI
-function computeKpiValue(kpi){
-    if(!sheetData.length || !kpi.column) return 0;
-    const vals = sheetData.map(r=>parseFloat(r[kpi.column])).filter(v=>!isNaN(v));
-    switch(kpi.calc){
-        case 'sum': return vals.reduce((a,b)=>a+b,0);
-        case 'avg': return (vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(2);
-        case 'max': return Math.max(...vals);
-        case 'min': return Math.min(...vals);
-        case 'count': return vals.length;
-        default: return 0;
-    }
+// Formulaire inline pour reparamétrage
+function showEditForm(kpi,index){
+    const div = document.createElement('div');
+    div.style.marginTop = '10px';
+
+    const nameInput = document.createElement('input');
+    nameInput.value = kpi.name;
+    nameInput.placeholder = 'Nom du KPI';
+    div.appendChild(nameInput);
+
+    const colSelect = document.createElement('select');
+    Object.keys(sheetData[0] || {}).forEach(col=>{
+        const opt = document.createElement('option');
+        opt.value = col;
+        opt.textContent = col;
+        if(col===kpi.column) opt.selected = true;
+        colSelect.appendChild(opt);
+    });
+    div.appendChild(colSelect);
+
+    const calcSelect = document.createElement('select');
+    ['sum','avg','max','min','count'].forEach(c=>{
+        const opt = document.createElement('option');
+        opt.value = c;
+        opt.textContent = c;
+        if(c===kpi.calc) opt.selected = true;
+        calcSelect.appendChild(opt);
+    });
+    div.appendChild(calcSelect);
+
+    const saveBtn = document.createElement('button');
+    saveBtn.textContent = 'Sauvegarder';
+    saveBtn.style.marginTop = '5px';
+    saveBtn.addEventListener('click', ()=>{
+        kpis[index] = {
+            name: nameInput.value,
+            column: colSelect.value,
+            calc: calcSelect.value
+        };
+        renderKpis();
+    });
+    div.appendChild(saveBtn);
+
+    // Remplacer bloc par formulaire
+    const kpiBlock = kpiContainer.querySelector(`[data-index='${index}']`);
+    kpiBlock.innerHTML = '';
+    kpiBlock.appendChild(div);
 }
 
 // Render KPI
