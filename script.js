@@ -1,6 +1,6 @@
-const dashboard = document.getElementById("dashboard");
 const kpiContainer = document.getElementById("kpiContainer");
-
+const sidebar = document.getElementById("sidebar");
+const toggleBtn = document.getElementById("toggle-btn");
 const saveBtn = document.getElementById("save-btn");
 const deleteBtn = document.getElementById("delete-btn");
 const sidebarTitle = document.getElementById("sidebar-title");
@@ -10,9 +10,17 @@ const typeInput = document.getElementById("kpi-type");
 const columnSelect = document.getElementById("kpi-column");
 const fileInput = document.getElementById("file-input");
 
+let editMode = true; // par défaut on démarre en back office
 let editingId = null;
 let kpis = JSON.parse(localStorage.getItem('kpis')) || [];
-let dataBase = []; // contient les lignes du fichier uploadé
+let dataBase = [];
+
+// ===== Toggle Mode =====
+toggleBtn.addEventListener('click', () => {
+  editMode = !editMode;
+  sidebar.classList.toggle('hidden', !editMode);
+  toggleBtn.textContent = editMode ? '👁️ Mode public' : '🛠️ Mode édition';
+});
 
 // ===== Upload et parsing =====
 fileInput.addEventListener('change', (e) => {
@@ -33,6 +41,7 @@ fileInput.addEventListener('change', (e) => {
     dataBase = XLSX.utils.sheet_to_json(ws, { defval: 0 });
     populateColumns();
     alert(`Fichier chargé : ${file.name} (${dataBase.length} lignes)`);
+    renderKPIs();
   };
   reader.readAsBinaryString(file);
 });
@@ -40,7 +49,7 @@ fileInput.addEventListener('change', (e) => {
 // remplir liste déroulante colonnes
 function populateColumns() {
   columnSelect.innerHTML = '<option value="">Sélectionner une colonne</option>';
-  if (dataBase.length === 0) return;
+  if (!dataBase.length) return;
   Object.keys(dataBase[0]).forEach(col => {
     const option = document.createElement('option');
     option.value = col;
@@ -85,7 +94,10 @@ function renderKPIs() {
     value.textContent = computeKPI(kpi);
     block.appendChild(value);
 
-    block.addEventListener('click', () => editKPI(kpi.id));
+    if (editMode) {
+      block.addEventListener('click', () => editKPI(kpi.id));
+    }
+
     kpiContainer.appendChild(block);
   });
 
@@ -97,7 +109,6 @@ saveBtn.addEventListener('click', () => {
   const name = nameInput.value.trim();
   const type = typeInput.value;
   const column = columnSelect.value;
-
   if (!name) return alert('Nom du KPI requis');
 
   if (editingId) {
@@ -109,13 +120,12 @@ saveBtn.addEventListener('click', () => {
     }
     editingId = null;
   } else {
-    const newKpi = {
+    kpis.push({
       id: Date.now().toString(),
       name,
       type,
       column
-    };
-    kpis.push(newKpi);
+    });
   }
 
   resetSidebar();
@@ -155,7 +165,8 @@ function resetSidebar() {
 // ===== Drag & Drop =====
 new Sortable(kpiContainer, {
   animation: 150,
-  ghostClass: 'sortable-ghost'
+  ghostClass: 'sortable-ghost',
+  disabled: !editMode
 });
 
 // ===== Initial render =====
