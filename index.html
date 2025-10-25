@@ -1,39 +1,34 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KPI Builder - Lego UX Multi-colonnes</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <title>Dashboard Lego KPI</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 </head>
 <body>
-    <!-- Sidebar -->
-    <div id="sidebar">
-        <h2>Créer un KPI</h2>
-        <input type="file" id="fileInput" accept=".csv, .xlsx">
-        <select id="columnSelect">
-            <option value="">-- Choisir une colonne --</option>
-        </select>
-        <select id="calcSelect">
-            <option value="sum">Somme</option>
-            <option value="avg">Moyenne</option>
-            <option value="max">Max</option>
-            <option value="min">Min</option>
-            <option value="count">Compte</option>
-        </select>
-        <input type="text" id="kpiName" placeholder="Nom du KPI">
-        <button id="addKpiBtn">Ajouter KPI</button>
-    </div>
+  <div id="sidebar">
+    <h2>Configurer un KPI</h2>
+    <input type="file" id="fileInput" accept=".csv,.xlsx" />
+    <input type="text" id="kpiName" placeholder="Nom du KPI" />
+    <select id="columnSelect"></select>
+    <select id="calcSelect">
+      <option value="">-- Type de calcul --</option>
+      <option value="sum">Somme</option>
+      <option value="avg">Moyenne</option>
+      <option value="max">Max</option>
+      <option value="min">Min</option>
+      <option value="count">Compte</option>
+    </select>
+    <button id="addKpiBtn">Ajouter KPI</button>
+  </div>
 
-    <!-- Dashboard -->
-    <div id="dashboard">
-        <h1>Dashboard Lego KPI</h1>
-        <div id="kpiContainer"></div>
-    </div>
+  <div id="dashboard">
+    <h1>Dashboard Lego KPI</h1>
+    <div id="kpiContainer"></div>
+  </div>
 
-    <!-- Librairies -->
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-    <script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
