@@ -1,9 +1,10 @@
 import streamlit as st
+from streamlit_sortable import sortable_container, sortable_item
 
 st.set_page_config(layout="wide")
-st.title("Prototype User-Builder KPI")
+st.title("Prototype User-Builder KPI - Drag & Drop")
 
-# Initialisation des KPI
+# Initialisation de la liste des KPI
 if "kpis" not in st.session_state:
     st.session_state.kpis = []
 
@@ -20,19 +21,11 @@ if st.sidebar.button("Push KPI"):
         st.warning("Merci de donner un nom au KPI")
 
 # ---------------- Dashboard : afficher les KPIs ----------------
-st.subheader("Dashboard")
-kpi_container = st.container()
+st.subheader("Dashboard - Drag & Drop")
 
-for idx, kpi in enumerate(st.session_state.kpis):
-    with kpi_container:
-        st.markdown(f"**{kpi['name']}** (source: {kpi['source']})")
-        # Ici tu pourrais mettre un calcul réel ou placeholder
-        st.metric(label="Valeur", value=0)
-        # Boutons pour déplacer la brique
-        col1, col2 = st.columns([1,1])
-        with col1:
-            if st.button("⬆️", key=f"up_{idx}") and idx > 0:
-                st.session_state.kpis[idx], st.session_state.kpis[idx-1] = st.session_state.kpis[idx-1], st.session_state.kpis[idx]
-        with col2:
-            if st.button("⬇️", key=f"down_{idx}") and idx < len(st.session_state.kpis)-1:
-                st.session_state.kpis[idx], st.session_state.kpis[idx+1] = st.session_state.kpis[idx+1], st.session_state.kpis[idx]
+# Drag & drop container
+with sortable_container(key="kpi_sortable"):
+    for idx, kpi in enumerate(st.session_state.kpis):
+        with sortable_item(key=f"kpi_{idx}"):
+            st.markdown(f"**{kpi['name']}** (source: {kpi['source']})")
+            st.metric(label="Valeur", value=0)  # Placeholder pour la métrique
