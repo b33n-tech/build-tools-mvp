@@ -1,66 +1,28 @@
-body {
-    display: flex;
-    font-family: 'Inter', sans-serif;
-    margin: 0;
-    height: 100vh;
-}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KPI Builder - Lego UX V1</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Sidebar de création de KPI -->
+    <div id="sidebar">
+        <h2>Créer un KPI</h2>
+        <input type="text" id="kpiName" placeholder="Nom du KPI">
+        <input type="text" id="kpiSource" placeholder="Source (optionnel)">
+        <button id="addKpiBtn">Ajouter KPI</button>
+    </div>
 
-#sidebar {
-    width: 250px;
-    background-color: #232f3c;
-    color: white;
-    padding: 20px;
-    box-sizing: border-box;
-}
+    <!-- Dashboard -->
+    <div id="dashboard">
+        <h1>Dashboard Lego KPI</h1>
+        <div id="kpiContainer"></div>
+    </div>
 
-#sidebar input {
-    width: 100%;
-    margin-bottom: 10px;
-    padding: 6px;
-    border-radius: 4px;
-    border: none;
-}
-
-#sidebar button {
-    width: 100%;
-    padding: 8px;
-    border-radius: 4px;
-    border: none;
-    background-color: #3ecdd1;
-    color: #1d2732;
-    font-weight: 600;
-    cursor: pointer;
-}
-
-#sidebar button:hover {
-    background-color: #35b9c1;
-    color: white;
-}
-
-#dashboard {
-    flex-grow: 1;
-    background-color: #1d2732;
-    color: white;
-    padding: 20px;
-    overflow-y: auto;
-}
-
-.kpi-block {
-    background-color: #232f3c;
-    border: 2px solid #3ecdd1;
-    border-radius: 8px;
-    padding: 12px;
-    margin-bottom: 10px;
-    cursor: grab;
-}
-
-.kpi-block h3 {
-    margin: 0 0 5px 0;
-    color: #3ecdd1;
-}
-
-.kpi-block p {
-    margin: 0;
-    font-size: 0.9em;
-    color: white;
-}
+    <!-- Sortable.js -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
