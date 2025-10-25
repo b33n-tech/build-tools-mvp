@@ -64,7 +64,6 @@ body {
   overflow-y: auto;
 }
 
-/* container des briques - layout Lego multi-colonnes */
 #kpiContainer {
   display: flex !important;
   flex-wrap: wrap !important;
@@ -72,7 +71,6 @@ body {
   align-items: flex-start;
 }
 
-/* brique KPI */
 .kpi-block {
   width: 220px;
   background-color: #232f3c;
@@ -104,7 +102,6 @@ body {
   margin-bottom: 8px;
 }
 
-/* petite zone pour valeur (placeholder) */
 .kpi-value {
   font-weight: 700;
   margin-top: 8px;
@@ -113,14 +110,4 @@ body {
   padding: 6px 8px;
   border-radius: 6px;
   text-align: center;
-}
-
-/* style de l'input / select inline si présent dans la brique */
-.kpi-block input, .kpi-block select, .kpi-block button {
-  width: 100%;
-  margin-top: 6px;
-  box-sizing: border-box;
-  padding: 6px;
-  border-radius: 6px;
-  border: none;
 }
