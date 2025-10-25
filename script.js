@@ -73,20 +73,29 @@ function createKpiBlock(kpi, index){
     value.textContent = 'Valeur: ' + computeKpiValue(kpi);
     div.appendChild(value);
 
-    // Mini menu
+    // Mini-menu corrigé
     const menu = document.createElement('select');
-    ['Actions','Reparamétrer','Supprimer'].forEach(optText=>{
-        const opt = document.createElement('option');
-        opt.value = optText.toLowerCase();
-        opt.textContent = optText;
-        menu.appendChild(opt);
-    });
+
+    const optionDefault = document.createElement('option');
+    optionDefault.textContent = 'Actions';
+    optionDefault.value = '';
+    menu.appendChild(optionDefault);
+
+    const optionEdit = document.createElement('option');
+    optionEdit.textContent = 'Reparamétrer';
+    optionEdit.value = 'edit';
+    menu.appendChild(optionEdit);
+
+    const optionDelete = document.createElement('option');
+    optionDelete.textContent = 'Supprimer';
+    optionDelete.value = 'delete';
+    menu.appendChild(optionDelete);
 
     menu.addEventListener('change', (e)=>{
         if(e.target.value === 'delete'){
             kpis.splice(index,1);
             renderKpis();
-        } else if(e.target.value === 'reparamétrer'){
+        } else if(e.target.value === 'edit'){
             showEditForm(kpi,index);
         }
         e.target.value = '';
@@ -140,7 +149,6 @@ function showEditForm(kpi,index){
     });
     div.appendChild(saveBtn);
 
-    // Remplacer bloc par formulaire
     const kpiBlock = kpiContainer.querySelector(`[data-index='${index}']`);
     kpiBlock.innerHTML = '';
     kpiBlock.appendChild(div);
