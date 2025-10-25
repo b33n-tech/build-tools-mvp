@@ -8,23 +8,26 @@ const fileInput = document.getElementById('fileInput');
 const columnSelect = document.getElementById('columnSelect');
 const calcSelect = document.getElementById('calcSelect');
 
-// Lire le fichier CSV/XLSX
+// Lire CSV/XLSX via SheetJS
 fileInput.addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
     const reader = new FileReader();
     reader.onload = (evt) => {
-        let data = evt.target.result;
-        if (file.name.endsWith('.csv')) {
-            const rows = data.split('\n').map(r => r.split(','));
-            sheetData = rows.map(r => Object.fromEntries(r.map((v,i)=>[rows[0][i], v])));
+        const data = evt.target.result;
+        let workbook;
+
+        if(file.name.endsWith('.csv')){
+            workbook = XLSX.read(data, {type:'binary', raw:true});
         } else {
-            const workbook = XLSX.read(data, {type:'binary'});
-            const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-            sheetData = XLSX.utils.sheet_to_json(firstSheet);
+            workbook = XLSX.read(data, {type:'binary'});
         }
-        // Remplir dropdown colonnes
+
+        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+        sheetData = XLSX.utils.sheet_to_json(firstSheet, {defval:0}); // cellules vides = 0
+
+        // remplir dropdown colonnes
         columnSelect.innerHTML = '<option value="">-- Choisir une colonne --</option>';
         if(sheetData.length > 0){
             Object.keys(sheetData[0]).forEach(col => {
@@ -35,15 +38,12 @@ fileInput.addEventListener('change', (e) => {
             });
         }
     };
-    if(file.name.endsWith('.csv')){
-        reader.readAsText(file);
-    } else {
-        reader.readAsBinaryString(file);
-    }
+
+    reader.readAsBinaryString(file);
 });
 
-// Créer un bloc KPI
-function createKpiBlock(kpi, index) {
+// Créer bloc KPI
+function createKpiBlock(kpi, index){
     const div = document.createElement('div');
     div.className = 'kpi-block';
     div.setAttribute('data-index', index);
@@ -64,12 +64,12 @@ function createKpiBlock(kpi, index) {
 }
 
 // Calcul KPI
-function computeKpiValue(kpi) {
+function computeKpiValue(kpi){
     if(!sheetData.length || !kpi.column) return 0;
     const vals = sheetData.map(r=>parseFloat(r[kpi.column])).filter(v=>!isNaN(v));
     switch(kpi.calc){
         case 'sum': return vals.reduce((a,b)=>a+b,0);
-        case 'avg': return vals.reduce((a,b)=>a+b,0)/vals.length;
+        case 'avg': return (vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(2);
         case 'max': return Math.max(...vals);
         case 'min': return Math.min(...vals);
         case 'count': return vals.length;
@@ -78,12 +78,12 @@ function computeKpiValue(kpi) {
 }
 
 // Render KPI
-function renderKpis() {
+function renderKpis(){
     kpiContainer.innerHTML = '';
     kpis.forEach((kpi,index)=>{
         kpiContainer.appendChild(createKpiBlock(kpi,index));
     });
-    localStorage.setItem('kpis',JSON.stringify(kpis));
+    localStorage.setItem('kpis', JSON.stringify(kpis));
 }
 
 // Ajouter KPI
@@ -101,7 +101,7 @@ addKpiBtn.addEventListener('click', ()=>{
 // Initial render
 renderKpis();
 
-// Drag & drop Lego
+// Drag & Drop Lego
 new Sortable(kpiContainer,{
     animation:150,
     onEnd: function(evt){
