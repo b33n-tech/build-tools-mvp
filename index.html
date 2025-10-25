@@ -1,53 +1,52 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>KPI Builder V4</title>
-<link rel="stylesheet" href="style.css" />
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KPI Builder V3</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 </head>
 <body>
+  <div id="sidebar">
+    <h2 id="sidebar-title">Créer un KPI</h2>
 
-<div id="header">
-  <h1>Dashboard Lego KPI</h1>
-  <button id="toggle-btn">🛠️ Mode édition</button>
-</div>
+    <label>Upload CSV/XLSX</label>
+    <input type="file" id="file-input" accept=".csv,.xlsx" />
 
-<div id="sidebar">
-  <h2 id="sidebar-title">Créer un KPI</h2>
+    <label>Nom du KPI</label>
+    <input type="text" id="kpi-name" placeholder="Nom du KPI" />
 
-  <label>Upload CSV/XLSX</label>
-  <input type="file" id="file-input" accept=".csv,.xlsx" />
+    <label>Type de calcul</label>
+    <select id="kpi-type">
+      <option value="">Type de calcul</option>
+      <option value="sum">Somme</option>
+      <option value="avg">Moyenne</option>
+      <option value="min">Min</option>
+      <option value="max">Max</option>
+    </select>
 
-  <label>Nom du KPI</label>
-  <input type="text" id="kpi-name" placeholder="Nom du KPI" />
+    <label>Colonne source</label>
+    <select id="kpi-column">
+      <option value="">Sélectionner une colonne</option>
+    </select>
 
-  <label>Type de calcul</label>
-  <select id="kpi-type">
-    <option value="">Type de calcul</option>
-    <option value="sum">Somme</option>
-    <option value="avg">Moyenne</option>
-    <option value="min">Min</option>
-    <option value="max">Max</option>
-  </select>
+    <div style="display:flex; gap:10px; margin-top:6px;">
+      <button id="save-btn">Ajouter KPI</button>
+      <button id="delete-btn" style="display:none; background:#c84c4c; color:white;">🗑️ Supprimer</button>
+    </div>
 
-  <label>Colonne source</label>
-  <select id="kpi-column">
-    <option value="">Sélectionner une colonne</option>
-  </select>
-
-  <div style="display:flex; gap:10px; margin-top:6px;">
-    <button id="save-btn">Ajouter / Mettre à jour KPI</button>
-    <button id="delete-btn" style="display:none; background:#c84c4c; color:white;">🗑️ Supprimer</button>
+    <div style="margin-top:12px; font-size:0.85rem; color:#bcdfe0">
+      Cliquez sur une brique du dashboard pour l'éditer dans la sidebar.
+    </div>
   </div>
-</div>
 
-<div id="dashboard">
-  <div id="kpiContainer"></div>
-</div>
+  <div id="dashboard">
+    <h1 style="color:#3ecdd1; margin:0 0 12px 0; font-size:1.4rem;">Dashboard Lego KPI</h1>
+    <div id="kpiContainer"></div>
+  </div>
 
-<script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
